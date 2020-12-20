@@ -142,19 +142,34 @@ print(dealer_hand[0].get_symbol() + " " + dealer_hand[0].get_suit())
 
 hit = input("Hit or Stand?")
 
-while hit[0] == "h":
+bust = False
+while hit[0] == "h" and not bust:
     player1.hit_card(this_deck)
 
     print("Your Hand")
     print_hand(hand)
 
-    hit = input("Hit or Stand?")
+    if get_val(hand) > 21:
+        print("You busted!")
+        bust = True
+    else:
+        hit = input("Hit or Stand?")
 
-print("Your Hand")
-print_hand(hand)
-print("Total: " + str(get_val(hand)))
+if not bust:
+    while get_val(dealer_hand) < 17:
+        dealer.hit_card(this_deck)
 
-print("Dealer")
-print_hand(dealer_hand)
-print("Total: " + str(get_val(dealer_hand)))
+    print("Your Hand")
+    print_hand(hand)
+    print("Total: " + str(get_val(hand)))
 
+    print("Dealer")
+    print_hand(dealer_hand)
+    print("Total: " + str(get_val(dealer_hand)))
+
+    if get_val(dealer_hand) > 21:
+        print("Dealer busted! You win!")
+    elif get_val(dealer_hand) > get_val(hand):
+        print("Better luck next time!")
+    elif get_val(dealer_hand) < get_val(hand):
+        print("You win!")
