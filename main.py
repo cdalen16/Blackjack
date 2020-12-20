@@ -120,56 +120,60 @@ def get_val(curr_hand):
 def print_hand(curr_hand):
     for k in curr_hand:
         print(k.get_symbol() + " " + k.get_suit())
+    print("Total: " + str(get_val(curr_hand)))
+
+
+def runner(deck):
+    player1 = Player()
+    player1.deal(deck)
+
+    dealer = Dealer()
+    dealer.deal(deck)
+
+    hand = player1.get_hand()
+    dealer_hand = dealer.get_hand()
+
+    print("Your Hand")
+    print_hand(hand)
+    print("Dealer")
+    print(dealer_hand[0].get_symbol() + " " + dealer_hand[0].get_suit())
+
+    hit = input("Hit or Stand?")
+
+    bust = False
+    while hit[0] == "h" and not bust:
+        player1.hit_card(deck)
+
+        print("Your Hand")
+        print_hand(hand)
+
+        if get_val(hand) > 21:
+            print("You busted!")
+            bust = True
+        else:
+            hit = input("Hit or Stand?")
+
+    if not bust:
+        while get_val(dealer_hand) < 17:
+            dealer.hit_card(deck)
+
+        print("Your Hand")
+        print_hand(hand)
+
+        print("Dealer")
+        print_hand(dealer_hand)
+
+        if get_val(dealer_hand) > 21:
+            print("Dealer busted! You win!")
+        elif get_val(dealer_hand) > get_val(hand):
+            print("Better luck next time!")
+        elif get_val(dealer_hand) < get_val(hand):
+            print("You win!")
 
 
 this_deck = Deck()
 this_deck.shuffle()
+runner(this_deck)
 
-player1 = Player()
-player1.deal(this_deck)
-
-dealer = Dealer()
-dealer.deal(this_deck)
-
-hand = player1.get_hand()
-dealer_hand = dealer.get_hand()
-
-print("Your Hand")
-print(hand[0].get_symbol() + " " + hand[0].get_suit())
-print(hand[1].get_symbol() + " " + hand[1].get_suit())
-print("Dealer")
-print(dealer_hand[0].get_symbol() + " " + dealer_hand[0].get_suit())
-
-hit = input("Hit or Stand?")
-
-bust = False
-while hit[0] == "h" and not bust:
-    player1.hit_card(this_deck)
-
-    print("Your Hand")
-    print_hand(hand)
-
-    if get_val(hand) > 21:
-        print("You busted!")
-        bust = True
-    else:
-        hit = input("Hit or Stand?")
-
-if not bust:
-    while get_val(dealer_hand) < 17:
-        dealer.hit_card(this_deck)
-
-    print("Your Hand")
-    print_hand(hand)
-    print("Total: " + str(get_val(hand)))
-
-    print("Dealer")
-    print_hand(dealer_hand)
-    print("Total: " + str(get_val(dealer_hand)))
-
-    if get_val(dealer_hand) > 21:
-        print("Dealer busted! You win!")
-    elif get_val(dealer_hand) > get_val(hand):
-        print("Better luck next time!")
-    elif get_val(dealer_hand) < get_val(hand):
-        print("You win!")
+while input("Play again?") == "y":
+    runner(this_deck)
