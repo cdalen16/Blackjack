@@ -42,6 +42,11 @@ class Deck:
 
     def __init__(self):
         self.deck = []
+        self.set_deck()
+
+        #self.initial_deck = self.deck
+
+    def set_deck(self):
         for i in range(2, 15):
             curr_card1 = Card(i, "Spades")
             curr_card2 = Card(i, "Hearts")
@@ -53,15 +58,15 @@ class Deck:
             self.deck.append(curr_card3)
             self.deck.append(curr_card4)
 
-        self.initial_deck = self.deck
+        self.shuffle()
 
     def get_deck(self):
         return self.deck
 
-    def reset_deck(self):
-        self.deck = self.initial_deck
-
     def hit_card(self):
+        if len(self.deck) == 0:
+            self.set_deck()
+
         next_card = self.deck[0]
         self.deck.remove(next_card)
         return next_card
@@ -180,7 +185,7 @@ def runner(deck):
 
 
 this_deck = Deck()
-this_deck.shuffle()
+#this_deck.shuffle()
 runner(this_deck)
 
 while input("Play again?") == "y":
