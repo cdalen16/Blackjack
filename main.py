@@ -22,7 +22,7 @@ class Card:
             return self.num
 
     def get_symbol(self):
-        if self.num > 10:
+        if self.num > 10 or self.num == 1:
             if self.num == 11:
                 return "J"
             elif self.num == 12:
@@ -33,6 +33,9 @@ class Card:
                 return "A"
         else:
             return str(self.num)
+
+    def set_value(self, new_value):
+        self.num = new_value
 
 
 class Deck:
@@ -145,6 +148,11 @@ def runner(deck):
         player1.hit_card(deck)
 
         print("Your Hand")
+
+        for k in hand:
+            if k.get_value() == 11 and get_val(hand) > 21:
+                k.set_value(1)
+
         print_hand(hand)
 
         if get_val(hand) > 21:
