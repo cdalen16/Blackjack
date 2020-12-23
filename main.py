@@ -1,6 +1,7 @@
 # Author - Campbell Dalen
 
 import random
+import tkinter as tk
 
 
 class Card:
@@ -43,8 +44,6 @@ class Deck:
     def __init__(self):
         self.deck = []
         self.set_deck()
-
-        #self.initial_deck = self.deck
 
     def set_deck(self):
         for i in range(2, 15):
@@ -117,76 +116,152 @@ class Dealer:
         return self.cards
 
 
-def get_val(curr_hand):
-    val = 0
-    for k in curr_hand:
-        val += k.get_value()
+class Application:
+    def __init__(self):
+        self.deck = Deck()
 
-    return val
+        self.window = tk.Tk()
+        self.create_widgets()
 
+        self.hit_button.bind("<Button-1>", self.hit_key)
+        self.stand_button.bind("<Button-1>", self.stand_key)
+        self.game_button.bind("<Button-1>", self.game_key)
+        self.quit_button.bind("<Button-1>", self.quit_key)
 
-def print_hand(curr_hand):
-    for k in curr_hand:
-        print(k.get_symbol() + " " + k.get_suit())
-    print("Total: " + str(get_val(curr_hand)))
+        self.T = tk.Text(self.window, height=5, width=30)
+        self.F = tk.Text(self.window, height=1, width=30)
+        self.D = tk.Text(self.window, height=5, width=30)
+        self.G = tk.Text(self.window, height=1, width=30)
+        self.H = tk.Text(self.window, height=1, width=30)
 
+        self.window.mainloop()
 
-def runner(deck):
-    player1 = Player()
-    player1.deal(deck)
+    def create_widgets(self):
+        self.label = tk.Label(text="Blackjack", fg="white", bg="black")
+        self.stand_button = tk.Button(
+            text="Stand",
+            width=25,
+            height=5,
+            bg="Red",
+        )
+        self.hit_button = tk.Button(
+            text="Hit",
+            width=25,
+            height=5,
+            bg="Green",
+        )
+        self.game_button = tk.Button(
+            text="New Game",
+            width=25,
+            height=5,
+            bg="Yellow",
+        )
+        self.quit_button = tk.Button(
+            text="Quit",
+            width=25,
+            height=5,
+            bg="Purple",
+        )
 
-    dealer = Dealer()
-    dealer.deal(deck)
+        self.label.pack()
+        self.hit_button.pack()
+        self.stand_button.pack()
+        self.game_button.pack()
+        self.quit_button.pack()
 
-    hand = player1.get_hand()
-    dealer_hand = dealer.get_hand()
+    def hit_key(self, event):
+        hand = self.player1.get_hand()
 
-    print("Your Hand")
-    print_hand(hand)
-    print("Dealer")
-    print(dealer_hand[0].get_symbol() + " " + dealer_hand[0].get_suit())
-
-    hit = input("Hit or Stand?")
-
-    bust = False
-    while hit[0] == "h" and not bust:
-        player1.hit_card(deck)
-
-        print("Your Hand")
+        self.player1.hit_card(self.deck)
 
         for k in hand:
-            if k.get_value() == 11 and get_val(hand) > 21:
+            if k.get_value() == 11 and self.get_val(hand) > 21:
                 k.set_value(1)
 
-        print_hand(hand)
+        self.print_hand(hand)
+        self.T.pack()
+        self.F.pack()
 
-        if get_val(hand) > 21:
-            print("You busted!")
-            bust = True
+        if self.get_val(hand) > 21:
+            self.H = tk.Text(self.window, height=2, width=30)
+            self.H.insert(tk.END, "You busted!")
+            self.H.pack()
+
+    def stand_key(self, event):
+        hand = self.player1.get_hand()
+        dealer_hand = self.dealer.get_hand()
+
+        while self.get_val(dealer_hand) < 17:
+            self.dealer.hit_card(self.deck)
+
+        self.print_hand(hand)
+        self.print_deal_hand(True, dealer_hand)
+        self.T.pack()
+        self.F.pack()
+        self.D.pack()
+        self.G.pack()
+
+        if self.get_val(dealer_hand) > 21:
+            self.H.insert(tk.END, "Dealer busted! You win!")
+        elif self.get_val(dealer_hand) > self.get_val(hand):
+            self.H.insert(tk.END, "Better luck next time!")
+        elif self.get_val(dealer_hand) < self.get_val(hand):
+            self.H.insert(tk.END, "You win!")
+
+        self.H.pack()
+
+    def game_key(self, event):
+        self.player1 = Player()
+        self.dealer = Dealer()
+
+        self.player1.deal(self.deck)
+        self.dealer.deal(self.deck)
+
+        hand = self.player1.get_hand()
+        dealer_hand = self.dealer.get_hand()
+
+        self.H.delete('1.0', tk.END)
+
+        self.print_hand(hand)
+        self.print_deal_hand(False, dealer_hand)
+
+    def quit_key(self, event):
+        self.window.quit()
+
+    def print_hand(self, curr_hand):
+        self.T.delete('1.0', tk.END)
+        self.F.delete('1.0', tk.END)
+        string = "Your Hand: \n"
+        for k in curr_hand:
+            string += k.get_symbol() + " " + k.get_suit() + "\n"
+
+        self.T.insert('1.0', string)
+        self.F.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
+        self.T.pack()
+        self.F.pack()
+
+    def print_deal_hand(self, final, curr_hand):
+        self.D.delete('1.0', tk.END)
+        self.G.delete('1.0', tk.END)
+        string = "Dealer Hand: \n"
+        if final:
+            for k in curr_hand:
+                string += k.get_symbol() + " " + k.get_suit() + "\n"
+
+            self.G.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
         else:
-            hit = input("Hit or Stand?")
+            string += curr_hand[0].get_symbol() + " " + curr_hand[0].get_suit() + "\n"
 
-    if not bust:
-        while get_val(dealer_hand) < 17:
-            dealer.hit_card(deck)
+        self.D.insert('1.0', string)
+        self.D.pack()
+        self.G.pack()
 
-        print("Your Hand")
-        print_hand(hand)
+    def get_val(self, curr_hand):
+        val = 0
+        for k in curr_hand:
+            val += k.get_value()
 
-        print("Dealer")
-        print_hand(dealer_hand)
-
-        if get_val(dealer_hand) > 21:
-            print("Dealer busted! You win!")
-        elif get_val(dealer_hand) > get_val(hand):
-            print("Better luck next time!")
-        elif get_val(dealer_hand) < get_val(hand):
-            print("You win!")
+        return val
 
 
-this_deck = Deck()
-#this_deck.shuffle()
-runner(this_deck)
-
-while input("Play again?") == "y":
-    runner(this_deck)
+app = Application()
