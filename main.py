@@ -3,6 +3,7 @@
 import random
 import tkinter as tk
 from PIL import Image, ImageTk
+# from flask import Flask
 
 
 class Card:
@@ -116,6 +117,8 @@ class Dealer:
         self.cards = []
 
     def deal(self, curr_deck):
+        if len(self.cards) > 0:
+            self.cards.clear()
         self.cards.append(curr_deck.hit_card())
         self.cards.append(curr_deck.hit_card())
 
@@ -126,32 +129,45 @@ class Dealer:
         return self.cards
 
 
+def get_val(curr_hand):
+    val = 0
+    for k in curr_hand:
+        val += k.get_value()
+
+    return val
+
+
 class Application:
     def __init__(self):
         self.deck = Deck()
+        self.player1 = Player()
+        self.dealer = Dealer()
 
         self.window = tk.Tk()
         self.window.geometry("400x700")
         self.create_widgets()
 
-        self.hit_button.bind("<Button-1>", self.hit_key)
-        self.stand_button.bind("<Button-1>", self.stand_key)
-        self.game_button.bind("<Button-1>", self.game_key)
-        self.quit_button.bind("<Button-1>", self.quit_key)
+        self.window.mainloop()
 
-        self.your = tk.Text(self.window, height=1, width=30)
-        self.player_total = tk.Text(self.window, height=1, width=30)
-        self.deal = tk.Text(self.window, height=1, width=30)
-        self.deal_total = tk.Text(self.window, height=1, width=30)
-        self.message = tk.Text(self.window, height=1, width=30)
+    def create_widgets(self):
+        label = tk.Label(text="Blackjack", fg="white", bg="black")
+        label.place(x=177, y=0)
+        your = tk.Text(self.window, height=1, width=30)
+        your.insert('1.0', "Your Hand: \n")
+        your.place(x=0, y=375)
+        deal = tk.Text(self.window, height=1, width=30)
+        deal.insert('1.0', "Dealer Hand: \n")
+        deal.place(x=0, y=500)
+
+        self.bal = tk.Label(text="Balance: " + str(self.player1.get_bal()), fg="white", bg="black")
 
         self.labels = []
         self.deal_labels = []
 
-        self.window.mainloop()
+        self.player_total = tk.Text(self.window, height=1, width=30)
+        self.deal_total = tk.Text(self.window, height=1, width=30)
+        self.message = tk.Text(self.window, height=1, width=30)
 
-    def create_widgets(self):
-        self.label = tk.Label(text="Blackjack", fg="white", bg="black")
         self.stand_button = tk.Button(
             text="Stand",
             width=25,
@@ -177,7 +193,12 @@ class Application:
             bg="Purple",
         )
 
-        self.label.place(x=177, y=0)
+        self.hit_button.bind("<Button-1>", self.hit_key)
+        self.stand_button.bind("<Button-1>", self.stand_key)
+        self.game_button.bind("<Button-1>", self.game_key)
+        self.quit_button.bind("<Button-1>", self.quit_key)
+
+        self.bal.place(x=0, y=0)
         self.hit_button.place(x=10, y=50)
         self.stand_button.place(x=210, y=50)
         self.game_button.place(x=10, y=150)
@@ -189,13 +210,12 @@ class Application:
         self.player1.hit_card(self.deck)
 
         for k in hand:
-            if k.get_value() == 11 and self.get_val(hand) > 21:
+            if k.get_value() == 11 and get_val(hand) > 21:
                 k.set_value(1)
 
         self.print_hand(hand)
 
-        if self.get_val(hand) > 21:
-            self.message = tk.Text(self.window, height=2, width=30)
+        if get_val(hand) > 21:
             self.message.insert(tk.END, "You busted!")
             self.message.place(x=0, y=650)
 
@@ -203,35 +223,31 @@ class Application:
         hand = self.player1.get_hand()
         dealer_hand = self.dealer.get_hand()
 
-        while self.get_val(dealer_hand) < 17:
+        while get_val(dealer_hand) < 17:
             self.dealer.hit_card(self.deck)
 
         self.print_hand(hand)
         self.print_deal_hand(True, dealer_hand)
 
-        if self.get_val(dealer_hand) > 21:
+        if get_val(dealer_hand) > 21:
             self.message.insert(tk.END, "Dealer busted! You win!")
-        elif self.get_val(dealer_hand) > self.get_val(hand):
+        elif get_val(dealer_hand) > get_val(hand):
             self.message.insert(tk.END, "Better luck next time!")
-        elif self.get_val(dealer_hand) < self.get_val(hand):
+        elif get_val(dealer_hand) < get_val(hand):
             self.message.insert(tk.END, "You win!")
+        else:
+            self.message.insert(tk.END, "Push")
 
         self.message.place(x=0, y=650)
 
     def game_key(self, event):
-        self.player1 = Player()
-        self.dealer = Dealer()
+        self.message.delete('1.0', tk.END)
 
         self.player1.deal(self.deck)
         self.dealer.deal(self.deck)
 
-        hand = self.player1.get_hand()
-        dealer_hand = self.dealer.get_hand()
-
-        self.message.delete('1.0', tk.END)
-
-        self.print_hand(hand)
-        self.print_deal_hand(False, dealer_hand)
+        self.print_hand(self.player1.get_hand())
+        self.print_deal_hand(False, self.dealer.get_hand())
 
     def quit_key(self, event):
         self.window.quit()
@@ -240,10 +256,6 @@ class Application:
         for k in self.labels:
             k.destroy()
         self.player_total.delete('1.0', tk.END)
-        self.your.delete('1.0', tk.END)
-
-        self.your.insert('1.0', "Your Hand: \n")
-        self.your.place(x=0, y=375)
 
         count = 0
         for k in curr_hand:
@@ -256,17 +268,13 @@ class Application:
             img.place(x=count*50, y=400)
             count = count + 1
 
-        self.player_total.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
+        self.player_total.insert('1.0', "Total: " + str(get_val(curr_hand)))
         self.player_total.place(x=0, y=470)
 
     def print_deal_hand(self, final, curr_hand):
         for k in self.deal_labels:
             k.destroy()
         self.deal_total.delete('1.0', tk.END)
-        self.deal.delete('1.0', tk.END)
-
-        self.deal.insert('1.0', "Dealer Hand: \n")
-        self.deal.place(x=0, y=500)
 
         count = 0
         if final:
@@ -276,10 +284,11 @@ class Application:
 
                 count = count + 1
 
-            self.deal_total.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
+            self.deal_total.insert('1.0', "Total: " + str(get_val(curr_hand)))
         else:
             load = Image.open("JPEG/" + curr_hand[0].get_symbol() + curr_hand[0].get_suit()[0] + ".jpg")
             self.load_img(load, count)
+            self.deal_total.insert('1.0', "Total: " + str(curr_hand[0].get_value()))
 
         self.deal_total.place(x=0, y=600)
 
@@ -291,12 +300,7 @@ class Application:
         self.deal_labels.append(img)
         img.place(x=count*50, y=530)
 
-    def get_val(self, curr_hand):
-        val = 0
-        for k in curr_hand:
-            val += k.get_value()
 
-        return val
-
-
+# app = Flask(__name__)
 game = Application()
+
