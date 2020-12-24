@@ -244,7 +244,7 @@ class Application:
         self.your.delete('1.0', tk.END)
 
         self.your.insert('1.0', "Your Hand: \n")
-        self.your.place(x=0, y=350)
+        self.your.place(x=0, y=375)
 
         count = 0
         for k in curr_hand:
@@ -273,25 +273,24 @@ class Application:
         if final:
             for k in curr_hand:
                 load = Image.open("JPEG/" + k.get_symbol() + k.get_suit()[0] + ".jpg")
-                load = load.resize((40, 50))
-                render = ImageTk.PhotoImage(load)
-                img = tk.Label(self.window, image=render)
-                img.image = render
-                self.deal_labels.append(img)
-                img.place(x=count*50, y=530)
+                self.load_img(load, count)
+
                 count = count + 1
 
             self.deal_total.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
         else:
             load = Image.open("JPEG/" + curr_hand[0].get_symbol() + curr_hand[0].get_suit()[0] + ".jpg")
-            load = load.resize((40, 50))
-            render = ImageTk.PhotoImage(load)
-            img = tk.Label(self.window, image=render)
-            img.image = render
-            self.deal_labels.append(img)
-            img.place(x=0, y=530)
+            self.load_img(load, count)
 
         self.deal_total.place(x=0, y=600)
+
+    def load_img(self, load, count):
+        load = load.resize((40, 50))
+        render = ImageTk.PhotoImage(load)
+        img = tk.Label(self.window, image=render)
+        img.image = render
+        self.deal_labels.append(img)
+        img.place(x=count*50, y=530)
 
     def get_val(self, curr_hand):
         val = 0
@@ -301,5 +300,4 @@ class Application:
         return val
 
 # app = Flask(__name__)
-hi = Application()
-
+game = Application()
