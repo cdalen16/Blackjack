@@ -3,6 +3,7 @@
 import random
 import tkinter as tk
 from PIL import Image, ImageTk
+# from flask import Flask
 
 
 class Card:
@@ -89,16 +90,25 @@ class Player:
 
     def __init__(self):
         self.cards = []
+        self.bal = 0.00
 
     def deal(self, curr_deck):
+        if len(self.cards) > 0:
+            self.cards.clear()
         self.cards.append(curr_deck.hit_card())
         self.cards.append(curr_deck.hit_card())
 
     def hit_card(self, curr_deck):
         self.cards.append(curr_deck.hit_card())
 
+    def depo(self, deposit):
+        self.bal = self.bal + deposit
+
     def get_hand(self):
         return self.cards
+
+    def get_bal(self):
+        return self.bal
 
 
 class Dealer:
@@ -120,8 +130,6 @@ class Dealer:
 class Application:
     def __init__(self):
         self.deck = Deck()
-        self.labels = []
-        self.deal_labels = []
 
         self.window = tk.Tk()
         self.window.geometry("400x700")
@@ -132,11 +140,14 @@ class Application:
         self.game_button.bind("<Button-1>", self.game_key)
         self.quit_button.bind("<Button-1>", self.quit_key)
 
-        self.T = tk.Text(self.window, height=1, width=30)
-        self.F = tk.Text(self.window, height=1, width=30)
-        self.D = tk.Text(self.window, height=1, width=30)
-        self.G = tk.Text(self.window, height=1, width=30)
-        self.H = tk.Text(self.window, height=1, width=30)
+        self.your = tk.Text(self.window, height=1, width=30)
+        self.player_total = tk.Text(self.window, height=1, width=30)
+        self.deal = tk.Text(self.window, height=1, width=30)
+        self.deal_total = tk.Text(self.window, height=1, width=30)
+        self.message = tk.Text(self.window, height=1, width=30)
+
+        self.labels = []
+        self.deal_labels = []
 
         self.window.mainloop()
 
@@ -155,7 +166,7 @@ class Application:
             bg="Green",
         )
         self.game_button = tk.Button(
-            text="New Game",
+            text="Place Bet",
             width=25,
             height=5,
             bg="Yellow",
@@ -185,9 +196,9 @@ class Application:
         self.print_hand(hand)
 
         if self.get_val(hand) > 21:
-            self.H = tk.Text(self.window, height=2, width=30)
-            self.H.insert(tk.END, "You busted!")
-            self.H.place(x=0, y=650)
+            self.message = tk.Text(self.window, height=2, width=30)
+            self.message.insert(tk.END, "You busted!")
+            self.message.place(x=0, y=650)
 
     def stand_key(self, event):
         hand = self.player1.get_hand()
@@ -200,13 +211,13 @@ class Application:
         self.print_deal_hand(True, dealer_hand)
 
         if self.get_val(dealer_hand) > 21:
-            self.H.insert(tk.END, "Dealer busted! You win!")
+            self.message.insert(tk.END, "Dealer busted! You win!")
         elif self.get_val(dealer_hand) > self.get_val(hand):
-            self.H.insert(tk.END, "Better luck next time!")
+            self.message.insert(tk.END, "Better luck next time!")
         elif self.get_val(dealer_hand) < self.get_val(hand):
-            self.H.insert(tk.END, "You win!")
+            self.message.insert(tk.END, "You win!")
 
-        self.H.place(x=0, y=650)
+        self.message.place(x=0, y=650)
 
     def game_key(self, event):
         self.player1 = Player()
@@ -218,7 +229,7 @@ class Application:
         hand = self.player1.get_hand()
         dealer_hand = self.dealer.get_hand()
 
-        self.H.delete('1.0', tk.END)
+        self.message.delete('1.0', tk.END)
 
         self.print_hand(hand)
         self.print_deal_hand(False, dealer_hand)
@@ -227,20 +238,18 @@ class Application:
         self.window.quit()
 
     def print_hand(self, curr_hand):
-
         for k in self.labels:
             k.destroy()
-        count = 0
-        self.T.delete('1.0', tk.END)
-        self.F.delete('1.0', tk.END)
-        self.F.delete('1.0', tk.END)
-        string = "Your Hand: \n"
-        self.T.insert('1.0', string)
+        self.player_total.delete('1.0', tk.END)
+        self.your.delete('1.0', tk.END)
 
+        self.your.insert('1.0', "Your Hand: \n")
+        self.your.place(x=0, y=350)
+
+        count = 0
         for k in curr_hand:
             load = Image.open("JPEG/" + k.get_symbol() + k.get_suit()[0] + ".jpg")
-            newsize = (40, 50)
-            load = load.resize(newsize)
+            load = load.resize((40, 50))
             render = ImageTk.PhotoImage(load)
             img = tk.Label(self.window, image=render)
             img.image = render
@@ -248,25 +257,23 @@ class Application:
             img.place(x=count*50, y=400)
             count = count + 1
 
-        self.F.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
-        self.F.place(x=0, y=470)
+        self.player_total.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
+        self.player_total.place(x=0, y=470)
 
     def print_deal_hand(self, final, curr_hand):
         for k in self.deal_labels:
             k.destroy()
+        self.deal_total.delete('1.0', tk.END)
+        self.deal.delete('1.0', tk.END)
 
-        self.D.delete('1.0', tk.END)
-        self.G.delete('1.0', tk.END)
-        string = "Dealer Hand: \n"
-        self.D.insert('1.0', string)
-        self.D.place(x=0, y=500)
+        self.deal.insert('1.0', "Dealer Hand: \n")
+        self.deal.place(x=0, y=500)
 
         count = 0
         if final:
             for k in curr_hand:
                 load = Image.open("JPEG/" + k.get_symbol() + k.get_suit()[0] + ".jpg")
-                newsize = (40, 50)
-                load = load.resize(newsize)
+                load = load.resize((40, 50))
                 render = ImageTk.PhotoImage(load)
                 img = tk.Label(self.window, image=render)
                 img.image = render
@@ -274,18 +281,17 @@ class Application:
                 img.place(x=count*50, y=530)
                 count = count + 1
 
-            self.G.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
+            self.deal_total.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
         else:
             load = Image.open("JPEG/" + curr_hand[0].get_symbol() + curr_hand[0].get_suit()[0] + ".jpg")
-            newsize = (40, 50)
-            load = load.resize(newsize)
+            load = load.resize((40, 50))
             render = ImageTk.PhotoImage(load)
             img = tk.Label(self.window, image=render)
             img.image = render
             self.deal_labels.append(img)
             img.place(x=0, y=530)
 
-        self.G.place(x=0, y=600)
+        self.deal_total.place(x=0, y=600)
 
     def get_val(self, curr_hand):
         val = 0
@@ -294,5 +300,6 @@ class Application:
 
         return val
 
+# app = Flask(__name__)
+hi = Application()
 
-app = Application()
