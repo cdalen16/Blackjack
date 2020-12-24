@@ -3,7 +3,6 @@
 import random
 import tkinter as tk
 from PIL import Image, ImageTk
-# from flask import Flask
 
 
 class Card:
@@ -301,6 +300,5 @@ class Application:
         img.place(x=count*50, y=530)
 
 
-# app = Flask(__name__)
 game = Application()
 
