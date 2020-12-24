@@ -258,6 +258,11 @@ class Application:
         self.player1.deal(self.deck)
         self.dealer.deal(self.deck)
 
+        if get_val(self.player1.get_hand()) == 21:
+            self.message.insert(tk.END, "Blackjack!")
+            self.player1.deposit(float(self.bet.get()) * 2.5)
+            self.bal.config(text="Balance: " + str(self.player1.get_bal()))
+
         self.print_hand(self.player1.get_hand())
         self.print_deal_hand(False, self.dealer.get_hand())
 
@@ -309,4 +314,3 @@ class Application:
 
 
 game = Application()
-
