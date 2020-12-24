@@ -124,7 +124,7 @@ class Application:
         self.deal_labels = []
 
         self.window = tk.Tk()
-        self.window.geometry("500x700")
+        self.window.geometry("400x700")
         self.create_widgets()
 
         self.hit_button.bind("<Button-1>", self.hit_key)
@@ -167,11 +167,11 @@ class Application:
             bg="Purple",
         )
 
-        self.label.pack()
-        self.hit_button.pack()
-        self.stand_button.pack()
-        self.game_button.pack()
-        self.quit_button.pack()
+        self.label.place(x=297, y=0)
+        self.hit_button.place(x=10, y=50)
+        self.stand_button.place(x=210, y=50)
+        self.game_button.place(x=10, y=150)
+        self.quit_button.place(x=210, y=150)
 
     def hit_key(self, event):
         hand = self.player1.get_hand()
