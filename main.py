@@ -258,7 +258,7 @@ class Application:
         self.player1.deal(self.deck)
         self.dealer.deal(self.deck)
 
-        if get_val(self.player1.get_hand()) == 21:
+        if get_val(self.player1.get_hand()) == 21 and self.dealer.get_hand()[0].get_value() < 10:
             self.message.insert(tk.END, "Blackjack!")
             self.player1.deposit(float(self.bet.get()) * 2.5)
             self.bal.config(text="Balance: " + str(self.player1.get_bal()))
@@ -314,3 +314,4 @@ class Application:
 
 
 game = Application()
+
