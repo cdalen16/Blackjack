@@ -89,7 +89,7 @@ class Player:
 
     def __init__(self):
         self.cards = []
-        self.bal = 0.00
+        self.bal = 50.00
 
     def deal(self, curr_deck):
         if len(self.cards) > 0:
@@ -100,8 +100,11 @@ class Player:
     def hit_card(self, curr_deck):
         self.cards.append(curr_deck.hit_card())
 
-    def depo(self, deposit):
+    def deposit(self, deposit):
         self.bal = self.bal + deposit
+
+    def place_bet(self, num):
+        self.bal = self.bal - num
 
     def get_hand(self):
         return self.cards
@@ -159,6 +162,8 @@ class Application:
         deal.place(x=0, y=500)
 
         self.bal = tk.Label(text="Balance: " + str(self.player1.get_bal()), fg="white", bg="black")
+        self.bet = tk.Entry(self.window)
+        self.bet.place(x=0, y=300)
 
         self.labels = []
         self.deal_labels = []
@@ -192,12 +197,13 @@ class Application:
             bg="Purple",
         )
 
+        self.bal.place(x=0, y=0)
+
         self.hit_button.bind("<Button-1>", self.hit_key)
         self.stand_button.bind("<Button-1>", self.stand_key)
         self.game_button.bind("<Button-1>", self.game_key)
         self.quit_button.bind("<Button-1>", self.quit_key)
 
-        self.bal.place(x=0, y=0)
         self.hit_button.place(x=10, y=50)
         self.stand_button.place(x=210, y=50)
         self.game_button.place(x=10, y=150)
@@ -240,6 +246,9 @@ class Application:
         self.message.place(x=0, y=650)
 
     def game_key(self, event):
+        self.player1.place_bet(float(self.bet.get()))
+        self.bal.config(text="Balance: " + str(self.player1.get_bal()))
+
         self.message.delete('1.0', tk.END)
 
         self.player1.deal(self.deck)
@@ -259,12 +268,8 @@ class Application:
         count = 0
         for k in curr_hand:
             load = Image.open("JPEG/" + k.get_symbol() + k.get_suit()[0] + ".jpg")
-            load = load.resize((40, 50))
-            render = ImageTk.PhotoImage(load)
-            img = tk.Label(self.window, image=render)
-            img.image = render
-            self.labels.append(img)
-            img.place(x=count*50, y=400)
+            self.load_img(load, self.labels).place(x=count*50, y=400)
+
             count = count + 1
 
         self.player_total.insert('1.0', "Total: " + str(get_val(curr_hand)))
@@ -279,26 +284,24 @@ class Application:
         if final:
             for k in curr_hand:
                 load = Image.open("JPEG/" + k.get_symbol() + k.get_suit()[0] + ".jpg")
-                self.load_img(load, count)
-
+                self.load_img(load, self.deal_labels).place(x=count * 50, y=530)
                 count = count + 1
 
             self.deal_total.insert('1.0', "Total: " + str(get_val(curr_hand)))
         else:
             load = Image.open("JPEG/" + curr_hand[0].get_symbol() + curr_hand[0].get_suit()[0] + ".jpg")
-            self.load_img(load, count)
+            self.load_img(load, self.deal_labels).place(x=count * 50, y=530)
             self.deal_total.insert('1.0', "Total: " + str(curr_hand[0].get_value()))
 
         self.deal_total.place(x=0, y=600)
 
-    def load_img(self, load, count):
-        load = load.resize((40, 50))
+    def load_img(self, load, hand):
+        load = load.resize((50, 60))
         render = ImageTk.PhotoImage(load)
         img = tk.Label(self.window, image=render)
         img.image = render
-        self.deal_labels.append(img)
-        img.place(x=count*50, y=530)
+        hand.append(img)
+        return img
 
 
 game = Application()
-
