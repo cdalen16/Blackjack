@@ -124,6 +124,7 @@ class Application:
         self.deal_labels = []
 
         self.window = tk.Tk()
+        self.window.geometry("500x700")
         self.create_widgets()
 
         self.hit_button.bind("<Button-1>", self.hit_key)
@@ -134,7 +135,7 @@ class Application:
         self.T = tk.Text(self.window, height=1, width=30)
         self.F = tk.Text(self.window, height=1, width=30)
         self.D = tk.Text(self.window, height=1, width=30)
-        self.G = tk.Text(self.window, height=5, width=30)
+        self.G = tk.Text(self.window, height=1, width=30)
         self.H = tk.Text(self.window, height=1, width=30)
 
         self.window.mainloop()
@@ -182,13 +183,11 @@ class Application:
                 k.set_value(1)
 
         self.print_hand(hand)
-        self.T.pack()
-        self.F.pack()
 
         if self.get_val(hand) > 21:
             self.H = tk.Text(self.window, height=2, width=30)
             self.H.insert(tk.END, "You busted!")
-            self.H.pack()
+            self.H.place(x=0, y=650)
 
     def stand_key(self, event):
         hand = self.player1.get_hand()
@@ -199,10 +198,6 @@ class Application:
 
         self.print_hand(hand)
         self.print_deal_hand(True, dealer_hand)
-        # self.T.pack()
-        # self.F.pack()
-        # self.D.pack()
-        # self.G.pack()
 
         if self.get_val(dealer_hand) > 21:
             self.H.insert(tk.END, "Dealer busted! You win!")
@@ -211,7 +206,7 @@ class Application:
         elif self.get_val(dealer_hand) < self.get_val(hand):
             self.H.insert(tk.END, "You win!")
 
-        self.H.pack()
+        self.H.place(x=0, y=650)
 
     def game_key(self, event):
         self.player1 = Player()
@@ -241,10 +236,8 @@ class Application:
         self.F.delete('1.0', tk.END)
         string = "Your Hand: \n"
         self.T.insert('1.0', string)
-        self.T.pack()
 
         for k in curr_hand:
-            # string += k.get_symbol() + " " + k.get_suit() + "\n"
             load = Image.open("JPEG/" + k.get_symbol() + k.get_suit()[0] + ".jpg")
             newsize = (40, 50)
             load = load.resize(newsize)
@@ -252,7 +245,6 @@ class Application:
             img = tk.Label(self.window, image=render)
             img.image = render
             self.labels.append(img)
-            # img.pack()
             img.place(x=count*50, y=400)
             count = count + 1
 
@@ -272,7 +264,6 @@ class Application:
         count = 0
         if final:
             for k in curr_hand:
-                # string += k.get_symbol() + " " + k.get_suit() + "\n"
                 load = Image.open("JPEG/" + k.get_symbol() + k.get_suit()[0] + ".jpg")
                 newsize = (40, 50)
                 load = load.resize(newsize)
@@ -285,7 +276,6 @@ class Application:
 
             self.G.insert('1.0', "Total: " + str(self.get_val(curr_hand)))
         else:
-            # string += curr_hand[0].get_symbol() + " " + curr_hand[0].get_suit() + "\n"
             load = Image.open("JPEG/" + curr_hand[0].get_symbol() + curr_hand[0].get_suit()[0] + ".jpg")
             newsize = (40, 50)
             load = load.resize(newsize)
@@ -295,9 +285,7 @@ class Application:
             self.deal_labels.append(img)
             img.place(x=0, y=530)
 
-        # self.D.insert('1.0', string)
-        # self.D.pack()
-        self.G.pack()
+        self.G.place(x=0, y=600)
 
     def get_val(self, curr_hand):
         val = 0
