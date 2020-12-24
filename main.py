@@ -234,12 +234,18 @@ class Application:
 
         if get_val(dealer_hand) > 21:
             self.message.insert(tk.END, "Dealer busted! You win!")
+            self.player1.deposit(float(self.bet.get()) * 2)
+            self.bal.config(text="Balance: " + str(self.player1.get_bal()))
         elif get_val(dealer_hand) > get_val(hand):
             self.message.insert(tk.END, "Better luck next time!")
         elif get_val(dealer_hand) < get_val(hand):
             self.message.insert(tk.END, "You win!")
+            self.player1.deposit(float(self.bet.get()) * 2)
+            self.bal.config(text="Balance: " + str(self.player1.get_bal()))
         else:
             self.message.insert(tk.END, "Push")
+            self.player1.deposit(float(self.bet.get()))
+            self.bal.config(text="Balance: " + str(self.player1.get_bal()))
 
         self.message.place(x=0, y=650)
 
@@ -303,3 +309,4 @@ class Application:
 
 
 game = Application()
+
