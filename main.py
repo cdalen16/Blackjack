@@ -167,7 +167,7 @@ class Application:
             bg="Purple",
         )
 
-        self.label.place(x=297, y=0)
+        self.label.place(x=177, y=0)
         self.hit_button.place(x=10, y=50)
         self.stand_button.place(x=210, y=50)
         self.game_button.place(x=10, y=150)
