@@ -154,16 +154,14 @@ class Application:
     def create_widgets(self):
         label = tk.Label(text="Blackjack", fg="white", bg="black")
         label.place(x=177, y=0)
-        your = tk.Text(self.window, height=1, width=30)
-        your.insert('1.0', "Your Hand: \n")
+        your = tk.Label(text="Your Hand:", fg="black")
         your.place(x=0, y=375)
-        deal = tk.Text(self.window, height=1, width=30)
-        deal.insert('1.0', "Dealer Hand: \n")
+        deal = tk.Label(text="Dealer Hand:", fg="black")
         deal.place(x=0, y=500)
 
-        self.bal = tk.Label(text="Balance: " + str(self.player1.get_bal()), fg="white", bg="black")
+        self.bal = tk.Label(text="Balance: " + str(self.player1.get_bal()), fg="black")
         self.bet = tk.Entry(self.window)
-        self.bet.place(x=0, y=300)
+        self.bet.place(x=10, y=250)
 
         self.labels = []
         self.deal_labels = []
