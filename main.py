@@ -207,6 +207,9 @@ class Application:
         self.game_button.place(x=10, y=150)
         self.quit_button.place(x=210, y=150)
 
+        self.disable(self.hit_button)
+        self.disable(self.stand_button)
+
     def hit_key(self, event):
         hand = self.player1.get_hand()
 
@@ -221,8 +224,12 @@ class Application:
         if get_val(hand) > 21:
             self.message.insert(tk.END, "You busted!")
             self.message.place(x=0, y=650)
+            self.disable(self.hit_button)
+            self.disable(self.stand_button)
 
     def stand_key(self, event):
+        self.disable(self.hit_button)
+        self.disable(self.stand_button)
         hand = self.player1.get_hand()
         dealer_hand = self.dealer.get_hand()
 
@@ -234,23 +241,30 @@ class Application:
 
         if get_val(dealer_hand) > 21:
             self.message.insert(tk.END, "Dealer busted! You win!")
-            self.player1.deposit(float(self.bet.get()) * 2)
+            self.player1.deposit(self.my_bet * 2)
             self.bal.config(text="Balance: " + str(self.player1.get_bal()))
         elif get_val(dealer_hand) > get_val(hand):
             self.message.insert(tk.END, "Better luck next time!")
         elif get_val(dealer_hand) < get_val(hand):
             self.message.insert(tk.END, "You win!")
-            self.player1.deposit(float(self.bet.get()) * 2)
+            self.player1.deposit(self.my_bet * 2)
             self.bal.config(text="Balance: " + str(self.player1.get_bal()))
         else:
             self.message.insert(tk.END, "Push")
-            self.player1.deposit(float(self.bet.get()))
+            self.player1.deposit(self.my_bet)
             self.bal.config(text="Balance: " + str(self.player1.get_bal()))
 
         self.message.place(x=0, y=650)
 
     def game_key(self, event):
-        self.player1.place_bet(float(self.bet.get()))
+        self.enable(self.hit_button)
+        self.enable(self.stand_button)
+        self.my_bet = 0.0
+
+        if self.bet.get() != "":
+            self.my_bet = float(self.bet.get())
+
+        self.player1.place_bet(self.my_bet)
         self.bal.config(text="Balance: " + str(self.player1.get_bal()))
 
         self.message.delete('1.0', tk.END)
@@ -262,6 +276,8 @@ class Application:
             self.message.insert(tk.END, "Blackjack!")
             self.player1.deposit(float(self.bet.get()) * 2.5)
             self.bal.config(text="Balance: " + str(self.player1.get_bal()))
+            self.disable(self.hit_button)
+            self.disable(self.stand_button)
 
         self.print_hand(self.player1.get_hand())
         self.print_deal_hand(False, self.dealer.get_hand())
@@ -312,6 +328,11 @@ class Application:
         hand.append(img)
         return img
 
+    def disable(self, button):
+        button.config(state=tk.DISABLED)
+
+    def enable(self, button):
+        button.config(state=tk.NORMAL)
+
 
 game = Application()
-
