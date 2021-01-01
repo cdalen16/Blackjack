@@ -238,7 +238,7 @@ class Application:
         disable(self.hit_button)
         disable(self.stand_button)
 
-    # player hit's card
+    # player hits card
     def hit_key(self, event):
         if self.stand_button['state'] == "disabled":
             return
@@ -258,12 +258,14 @@ class Application:
             self.message.place(x=0, y=650)
             disable(self.hit_button)
             disable(self.stand_button)
+            enable(self.game_button)
 
     # player stands
     def stand_key(self, event):
         if self.stand_button['state'] == "disabled":
             return
 
+        enable(self.game_button)
         disable(self.hit_button)
         disable(self.stand_button)
         hand = self.player1.get_hand()
@@ -294,8 +296,12 @@ class Application:
 
     # player places new bet
     def game_key(self, event):
+        if self.game_button['state'] == "disabled":
+            return
+
         enable(self.hit_button)
         enable(self.stand_button)
+        disable(self.game_button)
         self.my_bet = 0.0
 
         if self.bet.get() != "":
@@ -311,10 +317,11 @@ class Application:
 
         if get_val(self.player1.get_hand()) == 21 and self.dealer.get_hand()[0].get_value() < 10:
             self.message.insert(tk.END, "Blackjack!")
-            self.player1.deposit(self.my_bet * 2.5)
+            self.player1.deposit(self.my_bet + (self.my_bet * 1.5))
             self.bal.config(text="Balance: " + str(self.player1.get_bal()))
             disable(self.hit_button)
             disable(self.stand_button)
+            enable(self.game_button)
 
         self.print_hand(self.player1.get_hand())
         self.print_deal_hand(False, self.dealer.get_hand())
