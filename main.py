@@ -254,10 +254,10 @@ class Application:
         enable(self.game_button)
         disable(self.hit_button)
         disable(self.stand_button)
-        
+
         hand = self.player1.get_hand()
         dealer_hand = self.dealer.get_hand()
-        
+
         # dealer hits until hand is at least 17
         while get_val(dealer_hand) < 17:
             self.dealer.hit_card(self.deck)
@@ -328,10 +328,12 @@ class Application:
 
     # displays player's hand in window
     def print_hand(self, curr_hand):
+        # resets hand in window
         for k in self.labels:
             k.destroy()
         self.player_total.delete('1.0', tk.END)
 
+        # gets the right images for given hand
         count = 0
         for k in curr_hand:
             load = Image.open("JPEG/" + k.get_symbol() + k.get_suit()[0] + ".jpg")
@@ -344,10 +346,13 @@ class Application:
 
     # displays dealer's hand in window
     def print_deal_hand(self, final, curr_hand):
+        # resets hand in window
         for k in self.deal_labels:
             k.destroy()
         self.deal_total.delete('1.0', tk.END)
 
+        # checks if dealer is only showing first card or not
+        # gets images for the hand
         count = 0
         if final:
             for k in curr_hand:
@@ -393,5 +398,3 @@ def enable(button):
 
 
 game = Application()
-
-
