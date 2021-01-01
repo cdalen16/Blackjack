@@ -147,25 +147,6 @@ class Dealer:
         return self.cards
 
 
-# returns the value of the given hand
-def get_val(curr_hand):
-    val = 0
-    for k in curr_hand:
-        val += k.get_value()
-
-    return val
-
-
-# disables given button
-def disable(button):
-    button.config(state=tk.DISABLED)
-
-
-# enables given button
-def enable(button):
-    button.config(state=tk.NORMAL)
-
-
 class Application:
     def __init__(self):
         self.deck = Deck()
@@ -240,6 +221,7 @@ class Application:
 
     # player hits card
     def hit_key(self, event):
+        # makes sure button is enabled
         if self.stand_button['state'] == "disabled":
             return
 
@@ -247,12 +229,14 @@ class Application:
 
         self.player1.hit_card(self.deck)
 
+        # checks for aces and resets values
         for k in hand:
             if k.get_value() == 11 and get_val(hand) > 21:
                 k.set_value(1)
 
         self.print_hand(hand)
 
+        # checks for a bust
         if get_val(hand) > 21:
             self.message.insert(tk.END, "You busted!")
             self.message.place(x=0, y=650)
@@ -262,21 +246,26 @@ class Application:
 
     # player stands
     def stand_key(self, event):
+        # makes sure button is enables
         if self.stand_button['state'] == "disabled":
             return
 
+        # resets widgets
         enable(self.game_button)
         disable(self.hit_button)
         disable(self.stand_button)
+        
         hand = self.player1.get_hand()
         dealer_hand = self.dealer.get_hand()
-
+        
+        # dealer hits until hand is at least 17
         while get_val(dealer_hand) < 17:
             self.dealer.hit_card(self.deck)
 
         self.print_hand(hand)
         self.print_deal_hand(True, dealer_hand)
 
+        # checks for hand outcome against dealer
         if get_val(dealer_hand) > 21:
             self.message.insert(tk.END, "Dealer busted! You win!")
             self.player1.deposit(self.my_bet * 2)
@@ -296,25 +285,32 @@ class Application:
 
     # player places new bet
     def game_key(self, event):
+        # makes sure button is enabled
         if self.game_button['state'] == "disabled":
             return
 
+        # resets widgets
         enable(self.hit_button)
         enable(self.stand_button)
         disable(self.game_button)
-        self.my_bet = 0.0
+        self.message.delete('1.0', tk.END)
 
+        # places bet
+        self.my_bet = 0.0
         if self.bet.get() != "":
             self.my_bet = float(self.bet.get())
-
         self.player1.place_bet(self.my_bet)
         self.bal.config(text="Balance: " + str(self.player1.get_bal()))
-
-        self.message.delete('1.0', tk.END)
 
         self.player1.deal(self.deck)
         self.dealer.deal(self.deck)
 
+        # checks for double ace hand
+        for k in self.player1.get_hand():
+            if k.get_value() == 11 and get_val(self.player1.get_hand()) > 21:
+                k.set_value(1)
+
+        # checks for a blackjack
         if get_val(self.player1.get_hand()) == 21 and self.dealer.get_hand()[0].get_value() < 10:
             self.message.insert(tk.END, "Blackjack!")
             self.player1.deposit(self.my_bet + (self.my_bet * 1.5))
@@ -377,4 +373,25 @@ class Application:
         return img
 
 
+# returns the value of the given hand
+def get_val(curr_hand):
+    val = 0
+    for k in curr_hand:
+        val += k.get_value()
+
+    return val
+
+
+# disables given button
+def disable(button):
+    button.config(state=tk.DISABLED)
+
+
+# enables given button
+def enable(button):
+    button.config(state=tk.NORMAL)
+
+
 game = Application()
+
+
