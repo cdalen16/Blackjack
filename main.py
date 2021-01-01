@@ -14,7 +14,7 @@ class Card:
     def get_suit(self):
         return self.suit
 
-    # get card value
+    # get numerical value of card
     def get_value(self):
         if self.num == 14:
             return 11
@@ -23,6 +23,7 @@ class Card:
         else:
             return self.num
 
+    # get symbol of the card
     def get_symbol(self):
         if self.num > 10 or self.num == 1:
             if self.num == 11:
@@ -36,6 +37,7 @@ class Card:
         else:
             return str(self.num)
 
+    # changes the value of the card
     def set_value(self, new_value):
         self.num = new_value
 
@@ -46,6 +48,7 @@ class Deck:
         self.deck = []
         self.set_deck()
 
+    # adds all 52 cards to the deck
     def set_deck(self):
         for i in range(2, 15):
             curr_card1 = Card(i, "Spades")
@@ -60,9 +63,12 @@ class Deck:
 
         self.shuffle()
 
+    # returns the deck
     def get_deck(self):
         return self.deck
 
+    # removes the card from the deck when it is given to player/dealer
+    # if the deck is empty, resets the deck
     def hit_card(self):
         if len(self.deck) == 0:
             self.set_deck()
@@ -71,6 +77,7 @@ class Deck:
         self.deck.remove(next_card)
         return next_card
 
+    # randomizes the card placement in the deck
     def shuffle(self):
         new_deck = [None] * 52
 
@@ -91,24 +98,30 @@ class Player:
         self.cards = []
         self.bal = 50.00
 
+    # gives 2 cards to the player for the initial hand
     def deal(self, curr_deck):
         if len(self.cards) > 0:
             self.cards.clear()
         self.cards.append(curr_deck.hit_card())
         self.cards.append(curr_deck.hit_card())
 
+    # adds another card to player's hand
     def hit_card(self, curr_deck):
         self.cards.append(curr_deck.hit_card())
 
+    # adds given value to player's balance
     def deposit(self, deposit):
         self.bal = self.bal + deposit
 
+    # removes given value from player's balance
     def place_bet(self, num):
         self.bal = self.bal - num
 
+    # returns the cards in the player's hand
     def get_hand(self):
         return self.cards
 
+    # returns the player's balance
     def get_bal(self):
         return self.bal
 
@@ -118,19 +131,23 @@ class Dealer:
     def __init__(self):
         self.cards = []
 
+    # gives 2 cards to the dealer for the initial hand
     def deal(self, curr_deck):
         if len(self.cards) > 0:
             self.cards.clear()
         self.cards.append(curr_deck.hit_card())
         self.cards.append(curr_deck.hit_card())
 
+    # adds another card to dealer's hand
     def hit_card(self, curr_deck):
         self.cards.append(curr_deck.hit_card())
 
+    # returns the cards in the dealer's hand
     def get_hand(self):
         return self.cards
 
 
+# returns the value of the given hand
 def get_val(curr_hand):
     val = 0
     for k in curr_hand:
@@ -139,10 +156,12 @@ def get_val(curr_hand):
     return val
 
 
+# disables given button
 def disable(button):
     button.config(state=tk.DISABLED)
 
 
+# enables given button
 def enable(button):
     button.config(state=tk.NORMAL)
 
@@ -159,6 +178,7 @@ class Application:
 
         self.window.mainloop()
 
+    # adds widgets to window
     def create_widgets(self):
         label = tk.Label(text="Blackjack", fg="white", bg="black")
         label.place(x=177, y=0)
@@ -218,6 +238,7 @@ class Application:
         disable(self.hit_button)
         disable(self.stand_button)
 
+    # player hit's card
     def hit_key(self, event):
         if self.stand_button['state'] == "disabled":
             return
@@ -238,6 +259,7 @@ class Application:
             disable(self.hit_button)
             disable(self.stand_button)
 
+    # player stands
     def stand_key(self, event):
         if self.stand_button['state'] == "disabled":
             return
@@ -270,6 +292,7 @@ class Application:
 
         self.message.place(x=0, y=650)
 
+    # player places new bet
     def game_key(self, event):
         enable(self.hit_button)
         enable(self.stand_button)
@@ -296,9 +319,11 @@ class Application:
         self.print_hand(self.player1.get_hand())
         self.print_deal_hand(False, self.dealer.get_hand())
 
+    # player quits
     def quit_key(self, event):
         self.window.quit()
 
+    # displays player's hand in window
     def print_hand(self, curr_hand):
         for k in self.labels:
             k.destroy()
@@ -314,6 +339,7 @@ class Application:
         self.player_total.insert('1.0', "Total: " + str(get_val(curr_hand)))
         self.player_total.place(x=0, y=470)
 
+    # displays dealer's hand in window
     def print_deal_hand(self, final, curr_hand):
         for k in self.deal_labels:
             k.destroy()
@@ -334,6 +360,7 @@ class Application:
 
         self.deal_total.place(x=0, y=600)
 
+    # loads and resizes images for hand
     def load_img(self, load, hand):
         load = load.resize((50, 60))
         render = ImageTk.PhotoImage(load)
@@ -344,4 +371,3 @@ class Application:
 
 
 game = Application()
-
